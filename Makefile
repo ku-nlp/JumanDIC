@@ -9,7 +9,7 @@ SCRIPT_DIR=scripts
 DIC_DIRS=$(shell find . -maxdepth 1 -type d -name "*dic")
 DA_LIST=$(addsuffix /jumandic.da,$(DIC_DIRS))
 MDIC_LIST=$(addsuffix .mdic,$(DIC_DIRS))
-BASIC_DICTS=$(shell find dic -name "*.dic")
+BASIC_DICTS=$(shell find dic -name "*.dic"|grep -v "Rengo.dic")
 
 all: juman kkn
 
