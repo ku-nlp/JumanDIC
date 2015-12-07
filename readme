@@ -1,0 +1,14 @@
+
+
+# 初期設定
+Makefile中の JUMAN_PREFIX, KKN_PREFIX を設定する
+JUMAN_PREFIX=/share/usr-x86_64
+KKN_PREFIX=/home/morita/work/violet/kkn
+
+# juman用辞書生成
+make juman
+
+# KKN用辞書生成
+make kkn
+
+

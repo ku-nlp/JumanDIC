@@ -1,0 +1,19 @@
+
+# generated dictionaries
+*.mdic
+*.da
+*.dat
+*.bin
+*.pos
+*.spos
+*.form
+*.form_type
+*.base
+*.int
+
+
+# editor
+*.swp
+*.swo
+*.swm
+*.swn
