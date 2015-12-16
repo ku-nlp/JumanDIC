@@ -28,6 +28,9 @@ kkn: $(MDIC_LIST)
 %.mdic: %
 	cat $</*.dic > $@
 
+wikipediadic.mdic: wikipediadic
+	cat wikipediadic/wikipedia.mdic > $@
+
 dic.mdic: dic	
 	cat $(BASIC_DICTS) dic/lexicon_from_rengo.mdic > dic.mdic
 
