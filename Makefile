@@ -14,13 +14,13 @@ BASIC_DICTS=$(shell find dic -name "*.dic"|grep -v "Rengo.dic")
 all: juman kkn
 
 juman: $(DA_LIST)
-	git log -1 --format="%h" > dic.version
+	git log -1 --date=local --format="%ad-%h" > dic.version
 
 kkn: $(MDIC_LIST)
 	mkdir -p kkn &&\
 	cat $^ | PERL5LIB="" perl -I$(SCRIPT_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl > kkn.mdic &&\
 	$(KKN_PREFIX)/mkdarts kkn.mdic kkn/dic &&\
-	git log -1 --format="%h" > kkn/version
+	git log -1 --date=local --format="%ad-%h" > kkn/version
 
 # Wikipedia のみ特殊化する
 wikipediadic/jumandic.da: wikipediadic/wikipedia.dic
