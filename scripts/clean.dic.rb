@@ -50,7 +50,7 @@ while line=gets do
     # カタカナで３文字以下の，一覧or 人名を捨てる
     (midasi =~ /^\p{Katakana}{1,3}$/ && (line =~ /Wikipedia(?:ページ内)?一覧/|| line =~ /Wikipedia人名/) ) 
      ) 
-    #puts "discard " + line
+    STDERR.puts "discard " + line
   else
     puts line
   end

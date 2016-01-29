@@ -22,14 +22,21 @@ kkn: $(MDIC_LIST)
 	$(KKN_PREFIX)/mkdarts kkn.mdic kkn/dic &&\
 	git log -1 --format="%h" > kkn/version
 
+# Wikipedia のみ特殊化する
+wikipediadic/jumandic.da: wikipediadic/wikipedia.dic
+	sh $(SCRIPT_DIR)/update.sh -d wikipediadic 
+
 %/jumandic.da: %
 	sh $(SCRIPT_DIR)/update.sh -d $< 
 
 %.mdic: %
 	cat $</*.dic > $@
 
-wikipediadic.mdic: wikipediadic
-	cat wikipediadic/wikipedia.mdic > $@
+wikipediadic.mdic: wikipediadic wikipediadic/wikipedia.dic.orig 
+	cat wikipediadic/wikipedia.dic.orig > $@
+
+wikipediadic/wikipedia.dic: wikipediadic/wikipedia.dic.orig
+	cat $< | ruby $(SCRIPT_DIR)/clean.dic.rb > $@ 2> wikipediadic/clean.log
 
 dic.mdic: dic	
 	cat $(BASIC_DICTS) dic/lexicon_from_rengo.mdic > dic.mdic
