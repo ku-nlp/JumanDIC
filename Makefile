@@ -5,6 +5,7 @@ JUMAN_PREFIX=/share/usr-x86_64
 KKN_PREFIX=/home/morita/work/violet/kkn
 
 SCRIPT_DIR=scripts
+INFLECTION_DIR=inflection/blib/lib/
 
 DIC_DIRS=$(shell find . -maxdepth 1 -type d -name "*dic")
 DA_LIST=$(addsuffix /jumandic.da,$(DIC_DIRS))
