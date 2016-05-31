@@ -347,7 +347,7 @@ sub get_nominalized_rep {
         my $inf_rep_midasi = new Inflection($rep_midasi, $type, '基本形');
         my $inf_rep_yomi = new Inflection($rep_yomi, $type, '基本形');
         
-        my new_representation = "".$inf_rep_midasi->Transform("基本連用形").'/'.$inf_rep_yomi->Transform("基本連用形")
+        my new_representation = "".$inf_rep_midasi->Transform("基本連用形").'/'.$inf_rep_yomi->Transform("基本連用形");
         return new_representation;
     }
 }
