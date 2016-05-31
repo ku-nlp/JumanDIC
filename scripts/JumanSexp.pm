@@ -194,4 +194,18 @@ sub GetParentFromS {
     return undef;
 }
 
+sub GetElemFromS_with_parent {
+    my ($this, $car, $parent) = @_;
+    my $sdat = $this->{data};
+
+    for my $e (@$sdat) {
+        #print $sdat->[$e->{parent}]{element}."\n";
+        if ($e->{element} eq $car and  $sdat->[$e->{parent}]{element} eq $parent) {
+            return map({$sdat->[$_]{element}} @{$e->{children}});
+        }
+    }
+    return ();
+}
+
+
 1;
