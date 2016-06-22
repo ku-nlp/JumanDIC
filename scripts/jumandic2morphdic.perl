@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 
+use Juman;
 use JumanSexp;
 use Inflection;
 use utf8;
@@ -32,6 +33,7 @@ type\tne子音動詞サ行||imis\t!~\t/同義:動詞:[^ ]*する/
 imis\t!~\t/濁音化D/";
 
 # 名詞化を扱う条件
+# TODO: 形容詞は辞書に追加して，自動処理では扱わない．
 my @nominalize_rules = (
 "pos\teq\t動詞
 str\tne\tする
@@ -47,7 +49,6 @@ my @nominalized_suffix_rules = (
 "pos\teq\t接尾辞
 spos\teq\t動詞性動詞接尾辞
 form\teq\t基本連用形");
-
 
 my %dictionary; # 重複チェック用
 my @hikkomi_candidates;
@@ -112,7 +113,7 @@ while (<STDIN>) {
         
         if ($type) {
             if(!$spos){$spos= "*";}
-
+            
             my @ms =(&get_inflected_forms(Encode::encode('utf-8',$midasi), Encode::encode('utf-8',$type)));
             my @ys =(&get_inflected_forms(Encode::encode('utf-8',$yomi), Encode::encode('utf-8',$type)));
             my %hash; @hash{@ms}=@ys;
