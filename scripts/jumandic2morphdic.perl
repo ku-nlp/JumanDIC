@@ -353,7 +353,7 @@ sub print_nominalized_suffix_entry {
     push @imis_copy, "連用形名詞化:形態素解析";
     $imis_str = join(" ", @imis_copy);
     my $rep_inf = &get_nominalized_rep($rep, $midasi, $yomi, $form_type,"");
-    print $h, ',0,0,0,', "接尾辞",',', "名詞性接尾辞", ',' , '*', ',', '*', ',' , $h , ',', $yomi, ',' , $rep_inf, ',' , $imis_str,"\n"; 
+    print $h, ',0,0,0,', "接尾辞",',', "名詞性名詞接尾辞", ',' , '*', ',', '*', ',' , $h , ',', $yomi, ',' , $rep_inf, ',' , $imis_str,"\n"; 
 }
 
 # 活用形一覧の取得
