@@ -1,6 +1,9 @@
 #!/usr/bin/env perl
 
+use lib "./lib/";
 use Juman;
+use Carp;
+use Grammar qw/ $FORM $TYPE $HINSI/;
 use JumanSexp;
 use Inflection;
 use utf8;
@@ -17,11 +20,153 @@ my $opt_debug = 0;
 
 GetOptions('nominalize' => \$opt_nominalize, 'okurigana' => \$opt_okurigana, 'debug+' => \$opt_debug);
 
-print STDERR $opt_nominalize;
-print STDERR $opt_okurigana;
-print STDERR $opt_debug;
+# -e 用の置換マップ
+my %FILTER = (
+ "あ" => "え", "い" => "え", "う" => "え", "え" => "え", "お" => "え",
+ "ぁ" => "ぇ", "ぃ" => "ぇ", "ぅ" => "ぇ", "ぇ" => "ぇ", "ぉ" => "ぇ",
+ "か" => "け", "き" => "け", "く" => "け", "け" => "け", "こ" => "け",
+ "が" => "げ", "ぎ" => "げ", "ぐ" => "げ", "げ" => "げ", "ご" => "げ",
+ "さ" => "せ", "し" => "せ", "す" => "せ", "せ" => "せ", "そ" => "せ",
+ "た" => "て", "ち" => "て", "つ" => "て", "っ" => "て", "て" => "て", "と" => "て",
+ "だ" => "で", "ぢ" => "で", "づ" => "で", "で" => "で", "ど" => "で",
+ "な" => "ね", "に" => "ね", "ぬ" => "ね", "ね" => "ね", "の" => "ね",
+ "は" => "へ", "ひ" => "へ", "ふ" => "へ", "へ" => "へ", "ほ" => "へ",
+ "ば" => "べ", "び" => "べ", "ぶ" => "べ", "べ" => "べ", "ぼ" => "べ",
+ "ぱ" => "ぺ", "ぴ" => "ぺ", "ぷ" => "ぺ", "ぺ" => "ぺ", "ぽ" => "ぺ",
+ "ま" => "め", "み" => "め", "む" => "め", "め" => "め", "も" => "め",
+ "や" => "え", "ゆ" => "え", "よ" => "え", "ゃ" => "ぇ", "ゅ" => "ぇ", "ょ" => "ぇ",
+ "ら" => "れ", "り" => "れ", "る" => "れ", "れ" => "れ", "ろ" => "れ",
+ "わ" => "え", "を" => "え", "ん" => "え"
+);
+
+my %daku2sei = ("が" => "か", "ガ" => "カ", "ぎ" => "き", "ギ" => "キ", "ぐ" => "く",
+	     "グ" => "ク", "げ" => "け", "ゲ" => "ケ", "ご" => "こ", "ゴ" => "コ",
+	     "ざ" => "さ", "ザ" => "サ", "じ" => "し", "ジ" => "シ", "ず" => "す",
+	     "ズ" => "ス", "ぜ" => "せ", "ゼ" => "セ", "ぞ" => "そ", "ゾ" => "ソ",
+	     "だ" => "た", "ダ" => "タ", "ぢ" => "ち", "ヂ" => "チ", "づ" => "つ",
+	     "ヅ" => "ツ", "で" => "て", "デ" => "テ", "ど" => "と", "ド" => "ト",
+	     "ば" => "は", "バ" => "ハ", "び" => "ひ", "ビ" => "ヒ", "ぶ" => "ふ",
+	     "ブ" => "フ", "べ" => "へ", "ベ" => "ヘ", "ぼ" => "ほ", "ボ" => "ホ");
+my %sei2daku = reverse(%daku2sei);
 
 # TODO:見出しが一語の時
+
+# utils for Katuyou
+sub _zerop {
+    ( $_[0] =~ /\D/ )? $_[0] eq '*' : $_[0] == 0;
+}
+
+sub _indexp {
+    ( $_[0] !~ /\D/ and $_[0] >= 1 );
+}
+
+# 活用形のIDを取得
+sub get_form_id {
+    my( $type, $x ) = @_;
+
+    $type = Encode::encode('utf-8',$type);
+    $x = Encode::encode('utf-8',$x);
+    
+    if( $type eq '*' ){
+        if( &_zerop($x) ){
+            return 0;
+        }
+    } elsif( exists $FORM->{$type} ){
+        if( exists $FORM->{$type}->[0]->{$x} ){
+            return $FORM->{$type}->[0]->{$x};
+        } elsif( &_indexp($x) and defined $FORM->{$type}->[$x] ){
+            return $x;
+        }
+    }
+    undef;
+}
+
+sub get_type_id {
+    my( $x ) = @_;
+
+    if (utf8::is_utf8($x)) { # encode if the input has utf8_flag
+	    $x = Encode::encode('utf-8', $x);
+    }
+
+    if( &_zerop($x) ){
+        0;
+    } elsif( exists $TYPE->[0]->{$x} ){
+        $TYPE->[0]->{$x};
+    } elsif( &_indexp($x) and defined $TYPE->[$x] ){
+        $x;
+    } else {
+        # carp "Unknown katuyou id ($x)" if $WARNING;
+        undef;
+    }
+}
+
+# 語尾を変化させる内部関数
+sub _change_gobi {
+    my( $str, $cut, $add ) = @_;
+
+    unless( $cut eq '*' ){
+        # エ基本形からほかの活用形へは変更できない．
+        if($cut =~ /^-e/){
+            return $str;
+        }
+        $str =~ s/$cut\Z//;
+    }
+
+    unless( $add eq '*' ){
+        # -e の処理
+        if( $add =~ /^-e(.*)$/ ){
+            my $add_tail = $1;
+            if( $str =~ /^(.*)(.)$/ ){
+
+                my $head = $1;
+                my $tail = $2;
+                if( exists( $FILTER{$tail} )){
+                    $str = $head.$FILTER{$tail};
+                }
+            }
+            $str .= $add_tail;
+        }else{
+            $str .= $add;
+        }
+    }
+    $str;
+}
+
+sub change_katuyou {
+    my( $midasi, $form, $from_form, $type ) = @_;
+    
+    my $from_form_id = &get_form_id( $type, $from_form );
+    my $id = &get_form_id( $type, $form );
+
+    my $encoded_type = Encode::encode('utf-8',$type);
+    if( defined $id and $id > 0 and defined $from_form_id and $from_form_id > 0){
+        # 変更先活用形が存在する場合
+        my @oldgobi = @{ $FORM->{$encoded_type}->[$from_form_id] }; 
+        my @newgobi = @{ $FORM->{$encoded_type}->[$id] };
+
+        # カ変動詞来の場合の処理
+        if( $type eq 'カ変動詞来'){
+            if( $midasi eq Encode::decode('utf-8',$oldgobi[1])){
+                return &_change_gobi($midasi, Encode::decode('utf-8',$oldgobi[1]), Encode::decode('utf-8',$newgobi[1]) );
+            }else{
+                return &_change_gobi($midasi, Encode::decode('utf-8',$oldgobi[2]), Encode::decode('utf-8',$newgobi[2]) );
+            }
+        }else{
+            return &_change_gobi( $midasi, Encode::decode('utf-8',$oldgobi[1]), Encode::decode('utf-8',$newgobi[1]) );
+        }
+    } else {
+        # 変更先活用形が存在しない場合
+        undef;
+    }
+}
+
+#print STDERR &change_katuyou("ある","基本連用形","基本形","子音動詞ラ行")."\n";
+#print STDERR &change_katuyou("有る","基本連用形","基本形","子音動詞ラ行")."\n";
+#print STDERR &change_katuyou("なし","基本連用形","文語基本形","イ形容詞アウオ段")."\n";
+#for my $i (&get_all_forms("ある","子音動詞ラ行")){
+#    print STDERR "#".Encode::decode('utf-8',$i->{str})." ".Encode::decode('utf-8',$i->{form})."\n";
+#}
+# exit 0;
 
 
 # ルール
@@ -141,8 +286,8 @@ while (<STDIN>) {
         if ($type) {
             if(!$spos){$spos= "*";}
             
-            my @ms =(&get_inflected_forms(Encode::encode('utf-8',$midasi), Encode::encode('utf-8',$type)));
-            my @ys =(&get_inflected_forms(Encode::encode('utf-8',$yomi), Encode::encode('utf-8',$type)));
+            my @ms =(&get_inflected_forms($midasi, $type));
+            my @ys =(&get_inflected_forms($yomi, $type));
             my %hash; @hash{@ms}=@ys;
             for my $m_key (@ms){ # 活用形ごと
                 my $mstr = Encode::decode('utf-8', $m_key->{str});
@@ -160,8 +305,10 @@ while (<STDIN>) {
                 if( $opt_okurigana && &is_hikkomi_candidate(%mrp)){
                     # 送り仮名の処理 
                     my @replace_candidate;
-                    my @segments = split(/(\p{Han}\p{Hiragana})(?!\p{Hiragana})/,$mstr); # 送り仮名が二文字以上続く場合は引っ込めない
-                    #my @segments = split(/(\p{Han}\p{Hiragana})/,$mstr); # 送り仮名が何文字でも(１文字)引っ込める
+                    # 送り仮名が二文字以上続く場合は引っ込めない
+                    my @segments = split(/(\p{Han}\p{Hiragana})(?!\p{Hiragana})/,$mstr); 
+                    # 送り仮名が何文字でも(１文字)引っ込める
+                    #my @segments = split(/(\p{Han}\p{Hiragana})/,$mstr); 
 
                     my @imis_copy  = @imis;
                     push @imis_copy, "送り仮名引っ込み";
@@ -360,8 +507,8 @@ sub print_nominalized_suffix_entry {
 sub get_inflected_forms {
     my ($midasi, $type) = @_;
 
-    my $inf = new Inflection($midasi, $type, '基本形');
-    return $inf->GetAllForms();
+    # my $inf = new Inflection($midasi, $type, '基本形');
+    return get_all_forms($midasi, $type);
 }
 
 # 引っ込み対象語かどうかの判定
@@ -428,10 +575,13 @@ sub get_nominalized_rep {
     if($rep eq "*"){
         return &get_nominalized_midasi($midasi, $type)."/".$yomi;
     }else{
-        my $inf_rep_midasi = new Inflection($rep_midasi, $type, '基本形');
-        my $inf_rep_yomi = new Inflection($rep_yomi, $type, '基本形');
+        # my $inf_rep_midasi = new Inflection($rep_midasi, $type, '基本形');
+        my $inf_rep_midasi = "".&change_katuyou($rep_midasi,"基本連用形","基本形",$type);
+        #my $inf_rep_yomi = new Inflection($rep_yomi, $type, '基本形');
+        my $inf_rep_yomi = "".&change_katuyou($rep_yomi,"基本連用形","基本形",$type);
         
-        my $new_representation = "".$inf_rep_midasi->Transform("基本連用形").'/'.$inf_rep_yomi->Transform("基本連用形").$suffix;
+        #my $new_representation = "".$inf_rep_midasi->Transform("基本連用形").'/'.$inf_rep_yomi->Transform("基本連用形").$suffix;
+        my $new_representation = "".$inf_rep_midasi.'/'.$inf_rep_yomi.$suffix;
         return $new_representation;
     }
 }
@@ -440,7 +590,26 @@ sub get_nominalized_rep {
 sub get_nominalized_midasi {
     my ($midasi, $type) = @_;
 
-    my $inf_midasi = new Inflection($midasi, $type, '基本形');
-
-    return "".$inf_midasi->Transform("基本連用形");
+    return &change_katuyou($midasi,"基本連用形","基本形",$type);
 }
+
+sub get_all_forms {
+    my ($midasi, $type) = @_;
+
+    # output
+    my @forms;
+    my $type_id = get_type_id($type);
+
+    my @form_list = @{ $TYPE->[$type_id] };
+    shift(@form_list);
+
+    for my $form (@form_list) {
+        my $form_decoded = Encode::decode('utf-8',$form);
+        push(@forms, {str => Encode::encode('utf-8', &change_katuyou($midasi,$form_decoded,"基本形",$type)), form => $form});
+    }
+
+    return @forms;
+}
+
+
+
