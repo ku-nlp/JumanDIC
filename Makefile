@@ -1,47 +1,20 @@
 
-# JUMANのインストール先
-JUMAN_PREFIX=/share/usr-x86_64
-# KKN のディレクトリ
-KKN_PREFIX=/home/morita/work/violet/kkn
-
 SCRIPT_DIR=scripts
+JUMANPM_DIR=scripts/lib/
 INFLECTION_DIR=inflection/blib/lib/
 
-#DIC_DIRS=$(shell find . -maxdepth 1 -type d -name "*dic")
-DIC_DIRS=$(shell echo -e "dic\nwikipediadic\nwiktionarydic\nautodic\nonomatopedic")
-DA_LIST=$(addsuffix /jumandic.da,$(DIC_DIRS))
+DIC_DIRS=$(shell echo -e "dic\nwikipediadic\nwiktionarydic\nautodic\nonomatopedic\nuserdic")
 MDIC_LIST=$(addsuffix .mdic,$(DIC_DIRS))
 BASIC_DICTS=$(shell find dic -name "*.dic"|grep -v "Rengo.dic"|grep -v "ContentW.dic")
 
-all: juman kkn kkn_nominalize
+.PHONY: jumanpp 
+all: jumanpp
 
-juman: $(DA_LIST)
-	git log -1 --date=local --format="%ad-%h" > dic.version
-
-kkn: $(MDIC_LIST)
-	mkdir -p kkn &&\
-	cat $^ | PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(INFLECTION_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl > kkn.mdic &&\
-	$(KKN_PREFIX)/mkdarts kkn.mdic kkn/dic &&\
-	git log -1 --date=local --format="%ad-%h" > kkn/version
-
-kkn_nominalize: $(MDIC_LIST)
-	mkdir -p kkn_m &&\
-	cat $^ | PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(INFLECTION_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize > kkn_m.mdic &&\
-	$(KKN_PREFIX)/mkdarts kkn_m.mdic kkn_m/dic &&\
-	git log -1 --date=local --format="%ad-%h" > kkn_m/version
-
-kkn_hikkomi: $(MDIC_LIST)
-	mkdir -p kkn_h &&\
-	cat $^ | PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(INFLECTION_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana > kkn_h.mdic &&\
-	$(KKN_PREFIX)/mkdarts kkn_h.mdic kkn_h/dic &&\
-	git log -1 --date=local --format="%ad-%h" > kkn_h/version
-
-# Wikipedia を特殊化する(JUMAN用)
-wikipediadic/jumandic.da: wikipediadic/wikipedia.dic
-	sh $(SCRIPT_DIR)/update.sh -d wikipediadic 
-
-%/jumandic.da: %
-	sh $(SCRIPT_DIR)/update.sh -d $< 
+jumanpp: $(MDIC_LIST)
+	mkdir -p jumanpp_dic &&\
+	cat $^ | PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(INFLECTION_DIR) -I$(JUMANPM_DIR)  $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana > jumanpp.mdic &&\
+	mkdarts_jumanpp jumanpp.mdic jumanpp_dic/dic &&\
+	git log -1 --date=local --format="%ad-%h" > jumanpp_dic/version
 
 %.mdic: %
 	cat $</*.dic > $@
@@ -52,7 +25,7 @@ wikipediadic.mdic: wikipediadic wikipediadic/wikipedia.dic.orig
 wikipediadic/wikipedia.dic: wikipediadic/wikipedia.dic.orig
 	cat $< | ruby $(SCRIPT_DIR)/clean.dic.rb > $@ 2> wikipediadic/clean.log
 
-dic.mdic: $(BASIC_DICTS) dic/ContentW.marked_dic dic/lexicon_from_rengo.mdic
-	cat $(BASIC_DICTS) dic/ContentW.marked_dic dic/lexicon_from_rengo.mdic > dic.mdic
+dic.mdic: $(BASIC_DICTS) dic/ContentW.marked_dic 
+	cat $^ > dic.mdic
 
 
