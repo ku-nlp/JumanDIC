@@ -1,11 +1,11 @@
 #!/usr/bin/env perl
 
 use lib "./lib/";
-use Juman;
+#use Juman;
 use Carp;
 use Grammar qw/ $FORM $TYPE $HINSI/;
 use JumanSexp;
-use Inflection;
+# use Inflection;
 use utf8;
 use Encode;
 use Getopt::Long;
