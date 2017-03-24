@@ -1,0 +1,6 @@
+pos	eq	動詞
+form	eq	基本連用形
+imis	!~	/可能動詞/
+type	ne	サ変動詞
+type	ne子音動詞サ行||imis	!~	/同義:動詞:[^ ]*する/
+imis	!~	/濁音化D/

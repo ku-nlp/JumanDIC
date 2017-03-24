@@ -10,7 +10,7 @@ JUMAN, JUMAN++ 用の辞書生成スクリプト
 ## juman用辞書生成
 ```
 #!sh
-make juman
+make -f Makefile_juman juman
 ```
 ## JUMAN++用辞書生成
 ```
