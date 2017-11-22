@@ -15,7 +15,7 @@ class Emoji(object):
 
     def base(self):
         try:
-            idx = self.name.index(': ')            
+            idx = self.name.index(': ')
             return self.name[0:idx]
         except:
             return self.name
@@ -27,7 +27,7 @@ class Emoji(object):
         outfile.write(v)
 
 
-normregex = re.compile('[-: \'"“!,]+')
+normregex = re.compile('[-: \'"“”!,]+')
 
 
 def normalize(data):
