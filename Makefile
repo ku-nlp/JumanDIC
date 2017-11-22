@@ -21,7 +21,9 @@ scripts/lib/Grammar.pm: grammar/JUMAN.katuyou grammar/JUMAN.grammar grammar/JUMA
 
 jumanpp: $(MDIC_LIST) | scripts/lib/Grammar.pm
 	mkdir -p jumanpp_dic
-	cat $^ | PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(JUMANPM_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana > jumanpp_dic/jumanpp.dic
+	cat $^ | PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(JUMANPM_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana > jumanpp_dic/jumanpp.dic.0	
+	cat jppdic.header jumanpp_dic/jumanpp.dic.0 > jumanpp_dic/jumanpp.dic
+	rm jumanpp_dic/jumanpp.dic.0
 	git log --oneline --date=format:%Y%m%d --format=%ad-%h --max-count=1 HEAD > jumanpp_dic/version
 
 %.mdic: %
