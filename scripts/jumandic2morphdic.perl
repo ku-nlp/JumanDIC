@@ -413,10 +413,10 @@ if( $opt_okurigana ){
     }
 }
 
-print STDERR "output white space";
+#print STDERR "output white space";
 
 # 半角空白の追加（JUMANでは辞書外で例外的に処理されている）
-&print_entry(' ', '特殊', '空白', '*', '*', ' ', ' ', ' / ', ());
+#&print_entry(' ', '特殊', '空白', '*', '*', ' ', ' ', ' / ', ());
 
 
 ####################################
@@ -474,7 +474,7 @@ sub print_nominalize_entry {
     }
     
     my @imis_copy  = @$imis;
-    push @imis_copy, "連用形名詞化:形態素解析";
+    push @imis_copy, "連用形名詞化:".&get_normal_rep($rep, $midasi, $yomi, $form_type);
     $imis_str = join(" ", @imis_copy);
     my $rep_inf = &get_nominalized_rep($rep, $midasi, $yomi, $form_type, 'v');
 
@@ -497,7 +497,7 @@ sub print_nominalized_suffix_entry {
     # 名詞化項の生成
     # れ,0,0,0,接尾辞,動詞性接尾辞,基本連用形,母音動詞,れる,れ,れる/れる,NIL
     my @imis_copy  = @$imis;
-    push @imis_copy, "連用形名詞化:形態素解析";
+    push @imis_copy, "連用形名詞化:".&get_normal_rep($rep, $midasi, $yomi, $form_type);
     $imis_str = join(" ", @imis_copy);
     my $rep_inf = &get_nominalized_rep($rep, $midasi, $yomi, $form_type,"");
     print $h, ',0,0,0,', "接尾辞",',', "名詞性名詞接尾辞", ',' , '*', ',', '*', ',' , $h , ',', $yomi, ',' , $rep_inf, ',' , $imis_str,"\n"; 
@@ -585,6 +585,18 @@ sub get_nominalized_rep {
         return $new_representation;
     }
 }
+
+sub get_normal_rep {
+    my ($rep, $midasi, $yomi, $type) = @_;
+
+    if($rep eq "*"){
+        my $new_yomi = &change_katuyou($yomi,"基本形","基本連用形",$type);
+        return $midasi."/".$new_yomi;
+    }else{        
+        return $rep;
+    }
+}
+
 
 # 名詞化時の見出し語を生成
 sub get_nominalized_midasi {

@@ -1,6 +1,7 @@
 
 # generated files
 *.mdic
+*.jppdic
 *.da
 *.dat
 *.bin
@@ -17,6 +18,8 @@ kkn/version
 dic/version
 wikipediadic/wikipedia.dic
 wikipediadic/clean.log
+scripts/lib/Grammar.pm
+jumanpp_dic/
 
 # editor
 *.swp
