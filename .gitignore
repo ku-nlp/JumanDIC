@@ -20,6 +20,10 @@ wikipediadic/wikipedia.dic
 wikipediadic/clean.log
 scripts/lib/Grammar.pm
 jumanpp_dic/
+jumanpp_dic/version
+
+kaomoji/*.full
+kaomoji/*.half
 
 # editor
 *.swp
