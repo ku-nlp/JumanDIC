@@ -298,7 +298,7 @@ while (<STDIN>) {
                 my %mrp = (midasi => $midasi, str => $mstr, yomi => $yomi, form => $form, pos => $pos, spos => $spos, imis => $imis_str, type => $type, rep => $rep);
 
                 # 形容詞語幹は名詞化時のチェック対象
-                if($pos eq "形容詞" and $form eq "語幹"){
+                if($pos eq "形容詞" and $type !~ /^イ形容詞.*$/ and $form eq "語幹"){
                     $dictionary{$midasi."形容詞語幹"}=1;
                 }
 
