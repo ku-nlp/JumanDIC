@@ -21,6 +21,7 @@ scripts/lib/Grammar.pm: grammar/JUMAN.katuyou grammar/JUMAN.grammar grammar/JUMA
 
 jumanpp_dic/kaomoji.jppdic: kaomoji/jumandic.dic kaomoji/neologd.orig kaomoji/unidic.orig
 	cd kaomoji && $(MAKE) kaomoji.jppdic
+	mkdir -p jumanpp_dic
 	cp kaomoji/kaomoji.jppdic jumanpp_dic/kaomoji.jppdic
 
 jumanpp: $(MDIC_LIST) jumanpp_dic/kaomoji.jppdic | scripts/lib/Grammar.pm
