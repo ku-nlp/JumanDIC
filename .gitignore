@@ -31,3 +31,5 @@ kaomoji/*.half
 *.swm
 *.swn
 .vscode/
+.idea/
+venv/
