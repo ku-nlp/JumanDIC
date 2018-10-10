@@ -4,7 +4,7 @@ JUMANPM_DIR=scripts/lib/
 
 MKDIRTS:=mkdarts_jumanpp
 
-DIC_DIRS=dic wikipediadic wiktionarydic webdic onomatopedic userdic emoji
+DIC_DIRS=dic experiment wikipediadic wiktionarydic webdic onomatopedic userdic emoji
 MDIC_LIST=$(addsuffix .mdic,$(DIC_DIRS))
 BASIC_DICTS=$(shell find dic -name "*.dic"|grep -v "Rengo.dic"|grep -v "ContentW.dic")
 JPPDIC_LIST=$(addsuffix .jppdic,$(DIC_DIRS))
