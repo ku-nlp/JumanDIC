@@ -5,7 +5,7 @@ How to update:
 * Clean any duplicates with current dictionaries
 * Update the version below as well
 
-Current Unicode DB: http://unicode.org/Public/emoji/11.0/emoji-test.txt
+Current Unicode DB: http://unicode.org/Public/emoji/12.0/emoji-test.txt
 The url can be invalid.
 In that case go to http://unicode.org/Public/emoji and then to the latest subdirectory there.
 Find there emoji-test.txt and copy it here.
