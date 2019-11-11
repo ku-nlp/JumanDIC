@@ -49,8 +49,8 @@ wikipediadic/jumandic.da: wikipediadic/wikipedia.dic
 #wikipediadic.mdic: wikipediadic wikipediadic/wikipedia.dic.orig 
 #	cat wikipediadic/wikipedia.dic.orig > $@
 
-wikipediadic/wikipedia.dic: wikipediadic/wikipedia.dic.orig
-	cat $< | ruby $(SCRIPT_DIR)/clean.dic.rb > $@ 2> wikipediadic/clean.log
+wikipediadic/wikipedia.dic: wikipediadic/wikipedia.dic.orig.00 wikipediadic/wikipedia.dic.orig.01
+	cat $^ | ruby $(SCRIPT_DIR)/clean.dic.rb > $@ 2> wikipediadic/clean.log
 
 #dic.mdic: $(BASIC_DICTS) dic/ContentW.marked_dic dic/lexicon_from_rengo.mdic
 #	cat $(BASIC_DICTS) dic/ContentW.marked_dic dic/lexicon_from_rengo.mdic > dic.mdic
