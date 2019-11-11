@@ -34,12 +34,11 @@ jumanpp: $(MDIC_LIST) jumanpp_dic/kaomoji.jppdic | scripts/lib/Grammar.pm
 %.mdic: %
 	cat $</*.dic > $@
 
-wikipediadic.mdic: wikipediadic wikipediadic/wikipedia.dic.orig 
-	cat wikipediadic/wikipedia.dic.orig > $@
+wikipediadic.mdic: wikipediadic/wikipedia.dic.orig.00 wikipediadic/wikipedia.dic.orig.01
+	cat $^ > $@
 
 dic.mdic: $(BASIC_DICTS) dic/ContentW.marked_dic 
 	cat $^ > dic.mdic
 
-
 clean:
-	rm *.mdic *.jppdic
+	rm -rf *.mdic jumanpp_dic
