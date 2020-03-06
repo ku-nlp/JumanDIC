@@ -466,6 +466,7 @@ sub print_entry {
     if($h eq ','){ $h = '","';}
     if($midasi eq ','){ $midasi = '","';}
     if($yomi eq ','){ $yomi = '","';}
+    if($rep eq ',/,'){ $rep = '",/,"';}
     if( (not defined $imis) || scalar(@$imis) == 0){
         $imis_str = "NIL";
     }else{
