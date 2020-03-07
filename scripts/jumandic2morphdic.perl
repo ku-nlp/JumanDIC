@@ -463,10 +463,16 @@ sub is_duplicated {
 sub print_entry {
     my ($h, $pos, $spos, $form, $form_type, $midasi, $yomi, $rep, $imis) = @_;
     my $imis_str;
-    if($h eq ','){ $h = '","';}
-    if($midasi eq ','){ $midasi = '","';}
-    if($yomi eq ','){ $yomi = '","';}
-    if($rep eq ',/,'){ $rep = '",/,"';}
+    for my $str ($h, $midasi, $yomi, $rep) {
+	# quote a string with a comma
+	if ($str =~ /,/) {
+	    $str = '"' . $str . '"';
+	}
+	# escape a double quote
+	elsif ($str eq '\"') {
+	    $str = '""""';
+	}
+    }
     if( (not defined $imis) || scalar(@$imis) == 0){
         $imis_str = "NIL";
     }else{
