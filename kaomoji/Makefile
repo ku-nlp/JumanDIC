@@ -1,9 +1,9 @@
-ZEN2HAN ?= python3 ../scripts/zen2han.py
-HAN2ZEN ?= python3 ../scripts/han2zen.py
-OUTPUT_SCRIPT ?= python3 ../scripts/kaomoji_output.py
+ZEN2HAN ?= PYTHONUTF8=1 python3 ../scripts/zen2han.py
+HAN2ZEN ?= PYTHONUTF8=1 python3 ../scripts/han2zen.py
+OUTPUT_SCRIPT ?= PYTHONUTF8=1 python3 ../scripts/kaomoji_output.py
 
 jumandic.full: jumandic.dic
-	grep -oE '(見出し語 [^)]+)' $< | cut -d' ' -f 2 > $@
+	LC_ALL=C grep -oE '(見出し語 [^)]+)' $< | cut -d' ' -f 2 > $@
 
 jumandic.half: jumandic.full
 	$(ZEN2HAN) < $< > $@
@@ -22,7 +22,7 @@ unidic.full: unidic.orig
 
 kaomoji.jppdic: jumandic.full jumandic.half neologd.orig neologd.full \
 	neologd.half unidic.orig unidic.half unidic.full
-	sort $^ | uniq | $(OUTPUT_SCRIPT) $@
+	LC_ALL=C sort $^ | LC_ALL=C uniq | $(OUTPUT_SCRIPT) $@
 
 clean:
-	rm *.half *.full kaomoji.jppdic
+	rm -f *.half *.full kaomoji.jppdic

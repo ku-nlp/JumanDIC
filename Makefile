@@ -17,7 +17,7 @@ scripts/lib/Grammar.pm: grammar/JUMAN.katuyou grammar/JUMAN.grammar grammar/JUMA
 	perl -I scripts/lib/ scripts/mkgrammarpm grammar -o scripts/lib/Grammar.pm 
 
 %.jppdic : %.mdic | scripts/lib/Grammar.pm $(SCRIPT_DIR)/jumandic2morphdic.perl
-	PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(JUMANPM_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana < $< > $@ 
+	PERL5LIB="" LC_ALL=C perl -I$(SCRIPT_DIR) -I$(JUMANPM_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana < $< > $@ 
 
 jumanpp_dic/kaomoji.jppdic: kaomoji/jumandic.dic kaomoji/neologd.orig kaomoji/unidic.orig
 	cd kaomoji && $(MAKE) kaomoji.jppdic
@@ -42,3 +42,4 @@ dic.mdic: $(BASIC_DICTS) dic/ContentW.marked_dic
 
 clean:
 	rm -rf *.mdic jumanpp_dic
+	cd kaomoji && $(MAKE) clean
