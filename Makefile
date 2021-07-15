@@ -26,7 +26,7 @@ jumanpp_dic/kaomoji.jppdic: kaomoji/jumandic.dic kaomoji/neologd.orig kaomoji/un
 
 jumanpp: $(MDIC_LIST) jumanpp_dic/kaomoji.jppdic | scripts/lib/Grammar.pm
 	mkdir -p jumanpp_dic
-	cat $(MDIC_LIST) | PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(JUMANPM_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana > jumanpp_dic/jumanpp.dic.0	
+	cat $(MDIC_LIST) | LC_ALL=C PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(JUMANPM_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana > jumanpp_dic/jumanpp.dic.0	
 	cat jppdic.header jumanpp_dic/kaomoji.jppdic jumanpp_dic/jumanpp.dic.0 > jumanpp_dic/jumanpp.dic
 	rm jumanpp_dic/jumanpp.dic.0
 	git log --oneline --date=format:%Y%m%d --format=%ad-%h --max-count=1 HEAD > jumanpp_dic/version
