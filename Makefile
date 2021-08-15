@@ -8,6 +8,7 @@ DIC_DIRS=dic experiment wikipediadic wiktionarydic webdic onomatopedic userdic e
 MDIC_LIST=$(addsuffix .mdic,$(DIC_DIRS))
 BASIC_DICTS=$(shell find dic -name "*.dic"|grep -v "Rengo.dic"|grep -v "ContentW.dic")
 JPPDIC_LIST=$(addsuffix .jppdic,$(DIC_DIRS))
+BLACKLIST_ENTRIES=blacklist_entries.txt
 
 .PHONY: jumanpp 
 all: jumanpp
@@ -24,9 +25,9 @@ jumanpp_dic/kaomoji.jppdic: kaomoji/jumandic.dic kaomoji/neologd.orig kaomoji/un
 	mkdir -p jumanpp_dic
 	cp kaomoji/kaomoji.jppdic jumanpp_dic/kaomoji.jppdic
 
-jumanpp: $(MDIC_LIST) jumanpp_dic/kaomoji.jppdic | scripts/lib/Grammar.pm
+jumanpp: $(MDIC_LIST) jumanpp_dic/kaomoji.jppdic | scripts/lib/Grammar.pm $(BLACKLIST_ENTRIES)
 	mkdir -p jumanpp_dic
-	cat $(MDIC_LIST) | LC_ALL=C PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(JUMANPM_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana > jumanpp_dic/jumanpp.dic.0	
+	cat $(MDIC_LIST) | LC_ALL=C PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(JUMANPM_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana --blacklist $(BLACKLIST_ENTRIES) > jumanpp_dic/jumanpp.dic.0	
 	cat jppdic.header jumanpp_dic/kaomoji.jppdic jumanpp_dic/jumanpp.dic.0 > jumanpp_dic/jumanpp.dic
 	rm jumanpp_dic/jumanpp.dic.0
 	git log --oneline --date=format:%Y%m%d --format=%ad-%h --max-count=1 HEAD > jumanpp_dic/version

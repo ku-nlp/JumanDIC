@@ -17,8 +17,9 @@ use strict;
 my $opt_nominalize = 0;
 my $opt_okurigana = 0;
 my $opt_debug = 0;
+my $opt_blacklist;
 
-GetOptions('nominalize' => \$opt_nominalize, 'okurigana' => \$opt_okurigana, 'debug+' => \$opt_debug);
+GetOptions('nominalize' => \$opt_nominalize, 'okurigana' => \$opt_okurigana, 'debug+' => \$opt_debug, 'blacklist=s' => \$opt_blacklist);
 
 # -e 用の置換マップ
 my %FILTER = (
@@ -63,6 +64,23 @@ my %daku2sei = ("が" => "か", "ガ" => "カ", "ぎ" => "き", "ギ" => "キ", 
 	     "ば" => "は", "バ" => "ハ", "び" => "ひ", "ビ" => "ヒ", "ぶ" => "ふ",
 	     "ブ" => "フ", "べ" => "へ", "ベ" => "ヘ", "ぼ" => "ほ", "ボ" => "ホ");
 my %sei2daku = reverse(%daku2sei);
+
+# register blacklisted words
+my %blacklist;
+if ($opt_blacklist) {
+    if (-f $opt_blacklist) {
+	open(BLACKLIST, '<:encoding(utf-8)', $opt_blacklist);
+	while (<BLACKLIST>) {
+	    chomp;
+	    $blacklist{$_}++;
+	}
+	close(BLACKLIST);
+    }
+    else {
+	print STDERR "Cannot find the blacklist: $opt_blacklist\n";
+	exit(1);
+    }
+}
 
 # TODO:見出しが一語の時
 
@@ -275,6 +293,12 @@ while (<STDIN>) {
     for my $midasi ($s->get_elem('見出し語')) {# 連語から来たものは，同じ表層で同じ品詞のものがない場合のみ使う
         my $midasi_c = $midasi;
         $midasi_c =~ s/\\[END]//g;
+
+	# match with a blacklisted word
+	if (exists($blacklist{$midasi_c})) {
+	    # skip this entry
+	    last;
+	}
         
         # 重複している動詞のかな表記は扱わない
         # (見出し語 会う 逢う 遭う \Eあう \Dあう \Nあう)
