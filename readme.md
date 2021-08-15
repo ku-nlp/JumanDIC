@@ -1,10 +1,16 @@
-## JUMAN用辞書生成
-```
-#!sh
-make -f Makefile_juman juman
-```
-## Juman++用辞書生成
-```
-#!sh
+# Overview
+
+This repository contains source dictionary files to build dictionaries for JUMAN and Juman++.
+
+## Blacklist
+`blacklist_entries.txt`: List words that should not be included in the final dictionary.
+
+## To generate a dictionary for Juman++
+```bash
 make jumanpp
+```
+
+## To generate a dictionary for JUMAN
+```bash
+make -f Makefile_juman juman
 ```
