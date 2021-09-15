@@ -27,14 +27,14 @@ class Emoji(object):
         outfile.write(v)
 
 
-normregex = re.compile('[-: \'"“”!,]+')
+normregex = re.compile(r'[-: \'"“”!,]+')
 
 
 def normalize(data):
     data = normregex.sub('_', data)
     return data.upper()
 
-lineregex = re.compile(r'^([^;]+?) +; ((?:non-)?fully-qualified) +# [^ ]+ (.*)$')
+lineregex = re.compile(r'^([^;]+?) +; ([^ ]+) +# [^ ]+ E\d+\.\d+ (.*)$')
 
 def parse(fname):
     curgroup = "none"
