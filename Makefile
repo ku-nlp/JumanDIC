@@ -10,6 +10,9 @@ BASIC_DICTS=$(shell find dic -name "*.dic"|grep -v "Rengo.dic"|grep -v "ContentW
 JPPDIC_LIST=$(addsuffix .jppdic,$(DIC_DIRS))
 BLACKLIST_ENTRIES=blacklist_entries.txt
 
+KWJA_DIC_DIRS=dic experiment webdic
+KWJA_MDIC_LIST=$(addsuffix .mdic,$(KWJA_DIC_DIRS))
+
 .PHONY: jumanpp 
 all: jumanpp
 
@@ -32,6 +35,12 @@ jumanpp: $(MDIC_LIST) jumanpp_dic/kaomoji.jppdic | scripts/lib/Grammar.pm $(BLAC
 	rm jumanpp_dic/jumanpp.dic.0
 	git log --oneline --date=format:%Y%m%d --format=%ad-%h --max-count=1 HEAD > jumanpp_dic/version
 
+kwja: $(KWJA_MDIC_LIST) scripts/lib/Grammar.pm $(BLACKLIST_ENTRIES)
+	mkdir -p kwja_dic
+	cat $(KWJA_MDIC_LIST) | LC_ALL=C PERL5LIB="" perl -I$(SCRIPT_DIR) -I$(JUMANPM_DIR) $(SCRIPT_DIR)/jumandic2morphdic.perl --nominalize --okurigana --blacklist $(BLACKLIST_ENTRIES) > kwja_dic/kwja.dic.tmp
+	csvgrep -H -i -m '*' -c k kwja_dic/kwja.dic.tmp | tail +2 > kwja_dic/kwja.dic
+	git log --oneline --date=format:%Y%m%d --format=%ad-%h --max-count=1 HEAD > kwja_dic/version
+
 %.mdic: %
 	cat $</*.dic > $@
 
@@ -42,5 +51,5 @@ dic.mdic: $(BASIC_DICTS) dic/ContentW.marked_dic
 	cat $^ > dic.mdic
 
 clean:
-	rm -rf *.mdic jumanpp_dic
+	rm -rf *.mdic jumanpp_dic kwja_dic
 	cd kaomoji && $(MAKE) clean
